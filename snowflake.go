@@ -220,7 +220,10 @@ func (s *Service) Generate(machineID int64, count int) ([]uint64, error) {
 	if !ok {
 		return nil, notFound("machine %d not registered", machineID)
 	}
-	ids := make([]uint64, count)
+	// Allocate with capacity (not length) count so the appends below produce
+	// exactly count elements. make([]uint64, count) would pre-fill count zero
+	// slots and the appends would then double the length to 2*count.
+	ids := make([]uint64, 0, count)
 	for i := 0; i < count; i++ {
 		id, err := g.next()
 		if err != nil {
